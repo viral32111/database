@@ -1,6 +1,7 @@
 plugins {
 	id( "fabric-loom" )
-	kotlin( "jvm" ).version( System.getProperty( "kotlin_version" ) )
+	kotlin( "jvm" ) version( System.getProperty( "kotlin_version" ) )
+	kotlin( "plugin.serialization" ) version( System.getProperty( "kotlin_version" ) )
 }
 
 base {
@@ -27,6 +28,9 @@ dependencies {
 
 	// Kotlin support for Fabric - https://github.com/FabricMC/fabric-language-kotlin
 	modImplementation( "net.fabricmc", "fabric-language-kotlin", project.extra[ "fabric_language_kotlin_version" ] as String )
+
+	// Kotlin serialization
+	implementation( "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0" )
 
 }
 

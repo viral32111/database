@@ -16,8 +16,6 @@ This mod depends on [my Events mod](https://github.com/viral32111/events) for co
 
 The configuration file is created at `config/viral32111/database.json` upon starting the server with the mod for the first time.
 
-If this file does not exist, then download [the default configuration file](/src/main/resources/configuration.json) and move it there.
-
 ## License
 
 Copyright (C) 2023 [viral32111](https://viral32111.com).
