@@ -1,0 +1,42 @@
+{
+	"schemaVersion": 1,
+
+	"id": "database",
+	"version": "${ version }",
+
+	"name": "Database",
+	"description": "Stores player information in a database for other systems to use.",
+	"authors": [ {
+		"name": "viral32111",
+		"contact": {
+			"homepage": "https://viral32111.com",
+			"email": "contact@viral32111.com"
+		}
+	} ],
+	"contributors": [],
+	"contact": {
+		"homepage": "https://github.com/viral32111/database",
+		"sources": "https://github.com/viral32111/database",
+		"issues": "https://github.com/viral32111/database/issues"
+	},
+	"license": "AGPL-3.0-only",
+
+	"environment": "server",
+	"entrypoints": {
+		"server": [ {
+			"adapter": "kotlin",
+			"value": "com.viral32111.database.Database"
+		} ]
+	},
+	"mixins": [],
+
+	"depends": {
+		"java": ">=${ java }",
+		"minecraft": ">=${ minecraft }",
+		"fabricloader": ">=${ fabricloader }",
+		"fabric-api": ">=${ fabric_api }",
+		"fabric-language-kotlin": ">=${ fabric_language_kotlin }"
+	},
+	"suggests": {}
+
+}
