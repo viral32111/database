@@ -29,8 +29,17 @@ dependencies {
 	// Kotlin support for Fabric - https://github.com/FabricMC/fabric-language-kotlin
 	modImplementation( "net.fabricmc", "fabric-language-kotlin", project.extra[ "fabric_language_kotlin_version" ] as String )
 
+	// My callbacks
+	//modImplementation( "com.viral32111.events", "events", "0.3.1" )
+
 	// Kotlin serialization
 	implementation( "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0" )
+
+	// MongoDB Reactive Streams Driver - https://www.mongodb.com/docs/drivers/reactive-streams/
+	implementation( "org.mongodb:mongodb-driver-reactivestreams:4.9.0" )
+
+	// KMongo (Reactive Streams) - https://litote.org/kmongo/
+	implementation("org.litote.kmongo:kmongo-async:4.9.0")
 
 }
 

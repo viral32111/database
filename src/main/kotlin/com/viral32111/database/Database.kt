@@ -1,12 +1,21 @@
 package com.viral32111.database
 
+import com.mongodb.ConnectionString
+import com.mongodb.MongoClientSettings
+import com.mongodb.reactivestreams.client.MongoClients
 import com.viral32111.database.config.Config
+import com.viral32111.database.database.Player
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.loader.api.FabricLoader
+import org.litote.kmongo.eq
+import org.litote.kmongo.reactivestreams.KMongo
+import org.litote.kmongo.reactivestreams.findOne
+import org.litote.kmongo.reactivestreams.getCollection
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.StandardOpenOption
@@ -58,5 +67,32 @@ class Database: DedicatedServerModInitializer {
 		val config = JSON.decodeFromString<Config>( jsonConfig )
 
 		LOGGER.info( "Server: ${ config.mongoDB.server.address }:${ config.mongoDB.server.port }, Database: ${ config.mongoDB.database.name } (${ config.mongoDB.database.user }, ${ config.mongoDB.database.password })" )
+
+		tryMongoDB( config )
 	}
+
+	private fun tryMongoDB( config: Config ) {
+		val serverAddress = config.mongoDB.server.address
+		val serverPort = config.mongoDB.server.port
+		val databaseName = config.mongoDB.database.name
+		val databaseUser = config.mongoDB.database.user
+		val databasePassword = config.mongoDB.database.password
+
+		val connectionString = ConnectionString( "mongodb://${ databaseUser }:${ databasePassword }@${ serverAddress }:${ serverPort }/${ databaseName }?directConnection=true&tls=false" )
+		val clientSettings = MongoClientSettings.builder()
+			.applyConnectionString( connectionString )
+			.retryWrites( true )
+			.retryReads( true )
+			.build()
+
+		val client = KMongo.createClient( clientSettings )
+		val database = client.getDatabase( databaseName )
+		val collection = database.getCollection<Player>()
+
+		runBlocking {
+			collection.insertOne( Player( "1-2-3-4", "hi" ) )
+			collection.findOne( Player::username eq "hi" )
+		}
+	}
+
 }
