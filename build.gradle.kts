@@ -10,7 +10,15 @@ base {
 version = project.extra[ "mod_version" ] as String
 group = project.extra[ "maven_group" ] as String
 
-repositories {}
+repositories {
+	maven {
+		url = uri( "https://maven.pkg.github.com/viral32111/events" )
+		credentials {
+			username = System.getProperty( "gpr.user" ) ?: System.getenv( "USERNAME" )
+			password = System.getProperty( "gpr.key" ) ?: System.getenv( "TOKEN" )
+		}
+	}
+}
 
 dependencies {
 
@@ -30,7 +38,7 @@ dependencies {
 	modImplementation( "net.fabricmc", "fabric-language-kotlin", project.extra[ "fabric_language_kotlin_version" ] as String )
 
 	// My callbacks
-	//modImplementation( "com.viral32111.events", "events", "0.3.1" )
+	modImplementation( "com.viral32111", "events", "0.3.2" )
 
 	// Kotlin serialization
 	implementation( "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0" )

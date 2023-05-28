@@ -2,9 +2,9 @@ package com.viral32111.database
 
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
-import com.mongodb.reactivestreams.client.MongoClients
 import com.viral32111.database.config.Config
 import com.viral32111.database.database.Player
+import com.viral32111.events.callback.server.PlayerJoinCallback
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
@@ -12,6 +12,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.loader.api.FabricLoader
+import net.minecraft.util.ActionResult
 import org.litote.kmongo.eq
 import org.litote.kmongo.reactivestreams.KMongo
 import org.litote.kmongo.reactivestreams.findOne
@@ -69,6 +70,11 @@ class Database: DedicatedServerModInitializer {
 		LOGGER.info( "Server: ${ config.mongoDB.server.address }:${ config.mongoDB.server.port }, Database: ${ config.mongoDB.database.name } (${ config.mongoDB.database.user }, ${ config.mongoDB.database.password })" )
 
 		tryMongoDB( config )
+
+		PlayerJoinCallback.EVENT.register { connection, player ->
+			LOGGER.info( "${ player.displayName } (${ connection.address }) connected" )
+			return@register ActionResult.PASS
+		}
 	}
 
 	private fun tryMongoDB( config: Config ) {
