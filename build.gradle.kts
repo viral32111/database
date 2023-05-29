@@ -41,13 +41,20 @@ dependencies {
 	modImplementation( "com.viral32111", "events", "0.3.2" )
 
 	// Kotlin serialization
-	implementation( "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0" )
+	implementation( "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1" )
 
 	// MongoDB Reactive Streams Driver - https://www.mongodb.com/docs/drivers/reactive-streams/
-	implementation( "org.mongodb:mongodb-driver-reactivestreams:4.9.0" )
+	implementation( "org.mongodb:mongodb-driver-reactivestreams:4.9.1" )
 
 	// KMongo (Reactive Streams) - https://litote.org/kmongo/
-	implementation("org.litote.kmongo:kmongo-async:4.9.0")
+	implementation( "org.litote.kmongo:kmongo-async:4.9.0" )
+
+	// Spring Data MongoDB - https://www.mongodb.com/developer/languages/kotlin/spring-boot3-kotlin-mongodb/
+	implementation( "org.springframework.boot:spring-boot-starter-data-mongodb:3.1.0" )
+	implementation( "org.springframework.boot:spring-boot-starter-data-mongodb-reactive:3.1.0" )
+	implementation( "io.projectreactor.kotlin:reactor-kotlin-extensions:1.2.2" )
+	implementation( "org.jetbrains.kotlin:kotlin-reflect:1.8.21" )
+	implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1" )
 
 }
 

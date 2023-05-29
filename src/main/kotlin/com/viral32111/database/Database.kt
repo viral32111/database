@@ -7,7 +7,6 @@ import com.viral32111.database.database.Player
 import com.viral32111.events.callback.server.PlayerJoinCallback
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.fabricmc.api.DedicatedServerModInitializer
