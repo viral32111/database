@@ -1,28 +1,30 @@
 package com.viral32111.database
 
-import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
+import com.mongodb.MongoCredential
+import com.mongodb.MongoSocketOpenException
+import com.mongodb.MongoTimeoutException
+import com.mongodb.ServerAddress
+import com.mongodb.client.MongoClients
+import com.mongodb.connection.ClusterConnectionMode
 import com.viral32111.database.config.Config
-import com.viral32111.database.database.Player
 import com.viral32111.events.callback.server.PlayerJoinCallback
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.util.ActionResult
-import org.litote.kmongo.eq
-import org.litote.kmongo.reactivestreams.KMongo
-import org.litote.kmongo.reactivestreams.findOne
-import org.litote.kmongo.reactivestreams.getCollection
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.net.ConnectException
 import java.nio.file.StandardOpenOption
+import java.util.concurrent.TimeUnit
 import kotlin.io.path.createDirectory
 import kotlin.io.path.notExists
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
+
 
 @Suppress( "UNUSED" )
 class Database: DedicatedServerModInitializer {
@@ -83,21 +85,39 @@ class Database: DedicatedServerModInitializer {
 		val databaseUser = config.mongoDB.database.user
 		val databasePassword = config.mongoDB.database.password
 
-		val connectionString = ConnectionString( "mongodb://${ databaseUser }:${ databasePassword }@${ serverAddress }:${ serverPort }/${ databaseName }?directConnection=true&tls=false" )
-		val clientSettings = MongoClientSettings.builder()
-			.applyConnectionString( connectionString )
-			.retryWrites( true )
-			.retryReads( true )
-			.build()
+		try {
+			val client = MongoClients.create( MongoClientSettings.builder()
+				.applicationName( "Minecraft" )
+				.credential( MongoCredential.createCredential( databaseUser, databaseName, databasePassword.toCharArray() ) )
+				.applyToClusterSettings { builder ->
+					builder.mode( ClusterConnectionMode.SINGLE ) // Direct connection
+					builder.hosts( listOf( ServerAddress( serverAddress, serverPort ) )
+				) }
+				.applyToSocketSettings { builder ->
+					builder.connectTimeout( 1, TimeUnit.SECONDS )
+					builder.readTimeout( 1, TimeUnit.SECONDS )
+				}
+				.applyToSslSettings { builder ->
+					builder.enabled( false ) // Disable TLS
+				}
+				.retryWrites( true )
+				.retryReads( true )
+				.build() )
 
-		val client = KMongo.createClient( clientSettings )
-		val database = client.getDatabase( databaseName )
-		val collection = database.getCollection<Player>()
+			val database = client.getDatabase( databaseName )
+			val collection = database.getCollection( "Players" )
 
-		runBlocking {
-			collection.insertOne( Player( "1-2-3-4", "hi" ) )
-			collection.findOne( Player::username eq "hi" )
+			collection.find().forEach { document ->
+				LOGGER.info( document.toJson() )
+			}
+		} catch ( exception: MongoSocketOpenException ) {
+			LOGGER.error( "Failed to connect to the MongoDB server! (${ exception.message })" )
+		} catch ( exception: ConnectException ) {
+			LOGGER.error( "Failed to connect to the MongoDB server! (${ exception.message })" )
+		} catch ( exception: MongoTimeoutException ) {
+			LOGGER.error( "Timed out while connecting to the MongoDB server! (${ exception.message })" )
 		}
+
 	}
 
 }
