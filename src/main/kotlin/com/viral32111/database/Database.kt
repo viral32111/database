@@ -1,10 +1,6 @@
 package com.viral32111.database
 
-import com.mongodb.MongoClientSettings
-import com.mongodb.MongoCredential
-import com.mongodb.MongoSocketOpenException
-import com.mongodb.MongoTimeoutException
-import com.mongodb.ServerAddress
+import com.mongodb.*
 import com.mongodb.client.MongoClients
 import com.mongodb.connection.ClusterConnectionMode
 import com.viral32111.database.config.Config
@@ -15,8 +11,9 @@ import kotlinx.serialization.json.Json
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.util.ActionResult
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.LoggerContext
 import java.net.ConnectException
 import java.nio.file.StandardOpenOption
 import java.util.concurrent.TimeUnit
@@ -25,11 +22,10 @@ import kotlin.io.path.notExists
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-
 @Suppress( "UNUSED" )
 class Database: DedicatedServerModInitializer {
 	companion object {
-		val LOGGER: Logger = LoggerFactory.getLogger( "database" )
+		val LOGGER: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger( "com.viral32111.database" )
 
 		@OptIn( ExperimentalSerializationApi::class )
 		val JSON = Json {
@@ -70,6 +66,21 @@ class Database: DedicatedServerModInitializer {
 
 		LOGGER.info( "Server: ${ config.mongoDB.server.address }:${ config.mongoDB.server.port }, Database: ${ config.mongoDB.database.name } (${ config.mongoDB.database.user }, ${ config.mongoDB.database.password })" )
 
+		// Disable MongoDB Driver logging
+		java.util.logging.Logger.getLogger( java.util.logging.Logger.GLOBAL_LOGGER_NAME ).level = java.util.logging.Level.OFF
+		java.util.logging.Logger.getLogger( "org.mongodb.driver" ).level = java.util.logging.Level.OFF
+		java.util.logging.Logger.getLogger( "com.mongodb" ).level = java.util.logging.Level.OFF
+		org.slf4j.LoggerFactory.getLogger( "org.mongodb.driver" ).atLevel( org.slf4j.event.Level.ERROR )
+		org.slf4j.LoggerFactory.getLogger( "com.mongodb" ).atLevel( org.slf4j.event.Level.ERROR )
+		//( org.slf4j.LoggerFactory.getILoggerFactory() as ch.qos.logback.classic.LoggerContext ).getLogger( "org.mongodb.driver" ).level = ch.qos.logback.classic.Level.OFF
+		//( org.slf4j.LoggerFactory.getILoggerFactory() as ch.qos.logback.classic.LoggerContext ).getLogger( "com.mongodb" ).level = ch.qos.logback.classic.Level.OFF
+		//(  as LoggerContext ).getLogger( "org.mongodb.driver" ).level = Level.OFF
+		//( LogManager.getLogger( "org.mongodb.driver" ) as  ).level = Level.OFF
+		//( org.slf4j.LoggerFactory.getILoggerFactory() as LoggerContext ).getLogger( "com.mongodb" ).level = Level.OFF
+		//( LoggerFactory.getILoggerFactory() as LoggerContext ).getLogger( "org.mongodb.driver" ).level = Level.OFF
+		//( LoggerFactory.getILoggerFactory() as LoggerContext ).getLogger( "com.mongodb" ).level = Level.OFF
+		//LogManager.getLogger( "org.mongodb.driver" ).level = Level.OFF
+
 		tryMongoDB( config )
 
 		PlayerJoinCallback.EVENT.register { connection, player ->
@@ -91,17 +102,18 @@ class Database: DedicatedServerModInitializer {
 				.credential( MongoCredential.createCredential( databaseUser, databaseName, databasePassword.toCharArray() ) )
 				.applyToClusterSettings { builder ->
 					builder.mode( ClusterConnectionMode.SINGLE ) // Direct connection
+					builder.serverSelectionTimeout( 1, TimeUnit.SECONDS )
 					builder.hosts( listOf( ServerAddress( serverAddress, serverPort ) )
 				) }
 				.applyToSocketSettings { builder ->
-					builder.connectTimeout( 1, TimeUnit.SECONDS )
-					builder.readTimeout( 1, TimeUnit.SECONDS )
+					builder.connectTimeout( 3, TimeUnit.SECONDS )
+					builder.readTimeout( 3, TimeUnit.SECONDS )
 				}
 				.applyToSslSettings { builder ->
 					builder.enabled( false ) // Disable TLS
 				}
-				.retryWrites( true )
-				.retryReads( true )
+				.retryWrites( false )
+				.retryReads( false )
 				.build() )
 
 			val database = client.getDatabase( databaseName )
@@ -116,6 +128,12 @@ class Database: DedicatedServerModInitializer {
 			LOGGER.error( "Failed to connect to the MongoDB server! (${ exception.message })" )
 		} catch ( exception: MongoTimeoutException ) {
 			LOGGER.error( "Timed out while connecting to the MongoDB server! (${ exception.message })" )
+		} catch ( exception: MongoSocketException ) {
+			LOGGER.error( "Socket exception while connecting to the MongoDB server! (${ exception.message }" )
+		} catch ( exception: Exception ) {
+			LOGGER.error( "Exception while connecting to the MongoDB server! (${ exception.message }" )
+		} catch ( exception: RuntimeException ) {
+			LOGGER.error( "Runtime exception while connecting to the MongoDB server! (${ exception.message }" )
 		}
 
 	}

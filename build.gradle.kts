@@ -51,6 +51,9 @@ dependencies {
 	include( "org.mongodb:mongodb-driver-sync:4.9.1" ) // Bundle dependency into JAR
 	include( "org.mongodb:bson:4.9.1" ) // Bundle dependency into JAR
 
+	//implementation( "ch.qos.logback:logback-classic:1.4.7" )
+	//include( "ch.qos.logback:logback-classic:1.4.7" )
+
 	// MongoDB Reactive Streams Driver - https://www.mongodb.com/docs/drivers/reactive-streams/
 	//implementation( "org.mongodb:mongodb-driver-reactivestreams:4.9.0" )
 
