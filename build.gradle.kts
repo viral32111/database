@@ -38,7 +38,7 @@ dependencies {
 	modImplementation( "net.fabricmc", "fabric-language-kotlin", project.extra[ "fabric_language_kotlin_version" ] as String )
 
 	// My callbacks
-	modImplementation( "com.viral32111", "events", "0.3.2" )
+	modImplementation( "com.viral32111", "events", "0.3.3" )
 
 	// Kotlin serialization
 	implementation( "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1" )
