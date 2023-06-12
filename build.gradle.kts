@@ -14,8 +14,8 @@ repositories {
 	maven {
 		url = uri( "https://maven.pkg.github.com/viral32111/events" )
 		credentials {
-			username = System.getProperty( "gpr.user" ) ?: System.getenv( "USERNAME" )
-			password = System.getProperty( "gpr.key" ) ?: System.getenv( "TOKEN" )
+			username = project.findProperty( "gpr.user" ) as String? ?: System.getenv( "USER" )
+			password = project.findProperty( "gpr.key" ) as String? ?: System.getenv( "TOKEN" )
 		}
 	}
 }
@@ -37,11 +37,11 @@ dependencies {
 	// Kotlin support for Fabric - https://github.com/FabricMC/fabric-language-kotlin
 	modImplementation( "net.fabricmc", "fabric-language-kotlin", project.extra[ "fabric_language_kotlin_version" ] as String )
 
-	// My callbacks
-	modImplementation( "com.viral32111", "events", "0.3.3" )
+	// Kotlin JSON serialization
+	implementation( "org.jetbrains.kotlinx", "kotlinx-serialization-json", project.extra[ "kotlinx_serialization_json_version" ] as String )
 
-	// Kotlin serialization
-	implementation( "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1" )
+	// My callbacks - https://github.com/viral32111/events
+	modImplementation( "com.viral32111", "events", project.extra[ "events_version" ] as String )
 
 	// MongoDB Java Sync Driver - https://www.mongodb.com/docs/drivers/java/sync/current/
 	implementation( "org.mongodb:mongodb-driver-core:4.9.1" )
